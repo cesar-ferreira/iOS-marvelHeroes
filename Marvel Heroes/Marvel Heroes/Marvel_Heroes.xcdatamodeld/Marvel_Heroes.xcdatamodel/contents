@@ -1,4 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="1" systemVersion="11A491" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="false" userDefinedModelVersionIdentifier="">
-    <elements/>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17709" systemVersion="19H2" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="CharacterLocal" representedClassName="CharacterLocal" syncable="YES">
+        <attribute name="descriptionCharacter" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="thumbnail" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="ThumbnailLocal"/>
+    </entity>
+    <entity name="ThumbnailLocal" representedClassName="ThumbnailLocal" syncable="YES">
+        <attribute name="extensionThumbnail" optional="YES" attributeType="String"/>
+        <attribute name="path" optional="YES" attributeType="String"/>
+    </entity>
+    <elements>
+        <element name="CharacterLocal" positionX="-63" positionY="-18" width="128" height="103"/>
+        <element name="ThumbnailLocal" positionX="-54" positionY="-9" width="128" height="73"/>
+    </elements>
 </model>
