@@ -16,19 +16,18 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="marvel-logo" translatesAutoresizingMaskIntoConstraints="NO" id="9ZU-UU-65Z">
-                                <rect key="frame" x="107" y="353" width="200" height="200"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="200" id="XAO-oD-nlA"/>
-                                    <constraint firstAttribute="width" constant="200" id="wsn-9P-fhc"/>
-                                </constraints>
-                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Marvel" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DCc-Bo-wkx">
+                                <rect key="frame" x="144.5" y="429" width="125" height="48"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="40"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemRedColor"/>
                         <constraints>
-                            <constraint firstItem="9ZU-UU-65Z" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="VCr-Mv-YZA"/>
-                            <constraint firstItem="9ZU-UU-65Z" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="VtT-FZ-coN"/>
+                            <constraint firstItem="DCc-Bo-wkx" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="qfL-xK-pMR"/>
+                            <constraint firstItem="DCc-Bo-wkx" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="ulG-M2-Gdq"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -38,7 +37,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="marvel-logo" width="218.5" height="126.5"/>
         <systemColor name="systemRedColor">
             <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

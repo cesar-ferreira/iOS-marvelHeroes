@@ -31,7 +31,7 @@ extension ApiClient: TargetType {
     }
 
     var limit: String {
-        return "10"
+        return "100"
     }
 
     var path: String {

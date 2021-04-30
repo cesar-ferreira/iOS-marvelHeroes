@@ -2,7 +2,7 @@
 //  ImageDownload.swift
 //  Marvel Heroes
 //
-//  Created by Altran3496 on 25/04/21.
+//  Created by César Ferreira on 25/04/21.
 //
 
 import UIKit

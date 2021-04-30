@@ -2,13 +2,19 @@
 //  CharacterTableViewCell.swift
 //  Marvel Heroes
 //
-//  Created by Altran3496 on 24/04/21.
+//  Created by César Ferreira on 24/04/21.
 //
 
 import UIKit
+import CoreData
+
+protocol CharacterTableViewCellProtocol {
+    func didError(message: String)
+}
 
 class CharacterTableViewCell: UITableViewCell {
 
+    var delegate: CharacterTableViewCellProtocol?
     private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
     static let reuseIdentifier = "CharacterTableViewCell"
@@ -19,9 +25,8 @@ class CharacterTableViewCell: UITableViewCell {
 
     var character: Character? = nil
     var characterLocal: CharacterLocal? = nil
+
     var isRemote: Bool = true
-
-
     var isFavorite: Bool = false
 
     override func awakeFromNib() {
@@ -30,39 +35,49 @@ class CharacterTableViewCell: UITableViewCell {
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        self.isRemote ? favoriteButton.setImage(UIImage(systemName: "star"), for: .normal) : favoriteButton.setImage(UIImage(systemName: "star.fill"), for: .normal)
+        self.isRemote ? self.checkFavorite() : favoriteButton.setImage(UIImage(systemName: "star.fill"), for: .normal)
     }
 
     static func nib() -> UINib {
         return UINib(nibName: reuseIdentifier, bundle: nil)
-
     }
 
     @IBAction func favoriteButtonTapped(_ sender: Any) {
         self.addFavorite()
     }
-
 }
 
 extension CharacterTableViewCell {
 
     private func checkFavorite() {
-        isFavorite = false
+        do {
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "CharacterLocal")
+            fetchRequest.predicate = NSPredicate(format: "id == \(Int64(character?.id ?? 0))")
+            let fetchedResults = try context.fetch(fetchRequest)
+            if let exists = fetchedResults.first {
+                characterLocal = exists as? CharacterLocal
+                favoriteButton.setImage(UIImage(systemName: "star.fill"), for: .normal)
+                self.isFavorite = true
+            } else {
+                favoriteButton.setImage(UIImage(systemName: "star"), for: .normal)
+                self.isFavorite = false
+            }
+        } catch  {
+            delegate?.didError(message: "error when trying to retrieve objects from the database")
+        }
     }
 
     private func addFavorite() {
-        print("TAPPED FAVORITE")
-        print(isRemote)
-        self.isRemote ? self.saveObject() : self.removeObject()
-
+        (self.isRemote && !self.isFavorite) ? self.saveObject() : self.removeObject()
     }
 
     private func removeObject() {
         do {
             context.delete(characterLocal!)
             try context.save()
+            checkFavorite()
         } catch {
-            print("remove")
+            delegate?.didError(message: "error when trying to remove objects from the database")
         }
     }
 
@@ -79,27 +94,10 @@ extension CharacterTableViewCell {
             favorite.thumbnail = thumbnail
 
             try context.save()
+            checkFavorite()
         } catch {
-            print("ERro ao add remote")
+            delegate?.didError(message: "error when trying to add objects from the database")
         }
     }
-
-//    private func saveFromLocalObject() {
-//        do {
-//            let thumbnail = ThumbnailLocal(context: context)
-//            thumbnail.path = self.character?.thumbnail?.path
-//            thumbnail.extensionThumbnail = self.character?.thumbnail?.extensionThumbnail
-//
-//            let favorite = CharacterLocal(context: context)
-//            favorite.id = Int64((self.character?.id)!)
-//            favorite.name = self.character?.name
-//            favorite.descriptionCharacter = self.character?.description
-//            favorite.thumbnail = thumbnail
-//
-//            try context.save()
-//        } catch {
-//            print("ERro ao add remote")
-//        }
-//    }
 }
 

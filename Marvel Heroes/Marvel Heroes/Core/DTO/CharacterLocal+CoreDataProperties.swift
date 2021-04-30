@@ -2,7 +2,7 @@
 //  CharacterLocal+CoreDataProperties.swift
 //  
 //
-//  Created by Altran3496 on 27/04/21.
+//  Created by César Ferreira on 27/04/21.
 //
 //
 

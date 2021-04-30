@@ -31,7 +31,6 @@ private extension NetworkManager {
             case let .success(response):
                 do {
                     let results = try JSONDecoder().decode(T.self, from: response.data)
-//                    print(String(data: response.data, encoding: .utf8)!)
                     completion(.success(results))
                 } catch let error {
                     completion(.failure(error))

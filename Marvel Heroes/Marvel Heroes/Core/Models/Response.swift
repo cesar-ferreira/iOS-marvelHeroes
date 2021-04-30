@@ -15,12 +15,3 @@ struct Response<T: Decodable>: Decodable {
     let count: Int?
     let results: [T]?
 }
-
-
-//struct DataClass<T: Decodable>: Decodable {
-//    let items: [T]
-//
-//    enum CodingKeys: String, CodingKey {
-//        case items = "results"
-//    }
-//}

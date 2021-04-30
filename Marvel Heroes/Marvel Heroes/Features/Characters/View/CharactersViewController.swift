@@ -12,14 +12,14 @@ class CharactersViewController: UIViewController, StoryboardInstantiable {
 
     private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
-
     @IBOutlet weak var charactersTableView: UITableView!
     @IBOutlet weak var emptyView: UIView!
     @IBOutlet weak var loadingView: UIView!
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
 
     private let searchController = UISearchController()
-    
+    private let refreshControl = UIRefreshControl()
+
     private let viewModel = CharactersViewModel()
     private var charactersRemote: [Character] = []
     private var charactersLocal: [CharacterLocal] = []
@@ -28,17 +28,12 @@ class CharactersViewController: UIViewController, StoryboardInstantiable {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-
-
-//        isRemote ? self.getRemoteCharacters(nameStartsWith: nil) : getLocalCharacters(nameStartsWith: nil)
         self.setup()
-        
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        isRemote ? self.getRemoteCharacters(nameStartsWith: nil) : getLocalCharacters(nameStartsWith: nil)
+        self.isRemote ? self.getRemoteCharacters(nameStartsWith: nil) : self.getLocalCharacters(nameStartsWith: nil)
     }
 }
 
@@ -86,15 +81,19 @@ extension CharactersViewController {
 
     private func getLocalCharacters(nameStartsWith: String?) {
         self.loading(isLoading: true)
-
         do {
-            self.charactersLocal = try context.fetch(CharacterLocal.fetchRequest())
+            if let text = nameStartsWith {
+                let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "CharacterLocal")
+                fetchRequest.predicate = NSPredicate(format: "name CONTAINS[c] %@", text)
+                self.charactersLocal = try context.fetch(fetchRequest) as [CharacterLocal]
+            } else {
+                self.charactersLocal = try context.fetch(CharacterLocal.fetchRequest())
+            }
             self.loading(isLoading: false)
-
             self.charactersTableView.reloadData()
             self.setupEmpytView()
         } catch  {
-            print("!ERROOOOOROROROROR")
+            print("error when trying to retrieve objects from the database")
         }
     }
 
@@ -112,10 +111,13 @@ extension CharactersViewController {
 }
 
 extension CharactersViewController: UISearchResultsUpdating {
+
     func updateSearchResults(for searchController: UISearchController) {
         guard let text = searchController.searchBar.text else { return }
         if text.count > 1 {
-            self.getRemoteCharacters(nameStartsWith: text)
+            self.isRemote ? self.getRemoteCharacters(nameStartsWith: text) : self.getLocalCharacters(nameStartsWith: text)
+        } else {
+            self.isRemote ? self.getRemoteCharacters(nameStartsWith: nil) : self.getLocalCharacters(nameStartsWith: nil)
         }
     }
 }
@@ -135,8 +137,10 @@ extension CharactersViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+
         let viewController = CharacterDetailsViewController.instantiateViewController()
         viewController.isRemote = self.isRemote
+        viewController.isFavorite = self.isRemote ? viewModel.checkFavorite(id: self.charactersRemote[indexPath.row].id ?? 0) : true
         if self.isRemote {
             let character = self.charactersRemote[indexPath.row]
             viewController.character = character
@@ -153,6 +157,7 @@ extension CharactersViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
         let cell = tableView.dequeueReusableCell(withIdentifier: CharacterTableViewCell.reuseIdentifier, for: indexPath) as! CharacterTableViewCell
+        cell.delegate = self
 
         if self.isRemote {
             let character = self.charactersRemote[indexPath.row]
@@ -163,7 +168,6 @@ extension CharactersViewController: UITableViewDataSource {
             if let path = character.thumbnail?.path {
                 if let extensionThumbnail = character.thumbnail?.extensionThumbnail {
                     let url = "\(path).\(extensionThumbnail)"
-                    print(url)
                     cell.imageHero.downloaded(from: url)
                 }
             }
@@ -176,7 +180,6 @@ extension CharactersViewController: UITableViewDataSource {
             if let path = characterLocal.thumbnail?.path {
                 if let extensionThumbnail = characterLocal.thumbnail?.extensionThumbnail {
                     let url = "\(path).\(extensionThumbnail)"
-                    print(url)
                     cell.imageHero.downloaded(from: url)
                 }
             }
@@ -187,5 +190,11 @@ extension CharactersViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 100
+    }
+}
+
+extension CharactersViewController : CharacterTableViewCellProtocol {
+    func didError(message: String) {
+        self.alertError(message: message)
     }
 }
