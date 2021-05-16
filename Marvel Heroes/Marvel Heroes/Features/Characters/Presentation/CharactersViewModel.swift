@@ -12,7 +12,7 @@ import CoreData
 class CharactersViewModel {
 
     private let networkManager: NetworkManager
-    private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
 
 
     init(networkManager: NetworkManager = NetworkManager()) {

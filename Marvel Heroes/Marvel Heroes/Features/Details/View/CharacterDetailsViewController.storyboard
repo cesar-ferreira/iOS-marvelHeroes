@@ -55,7 +55,7 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="ZdI-Et-62Q">
-                        <barButtonItem key="rightBarButtonItem" title="Item" image="star" catalog="system" id="AyZ-4H-fjw">
+                        <barButtonItem key="rightBarButtonItem" title="    " id="AyZ-4H-fjw">
                             <connections>
                                 <action selector="favoriteButtonTapped:" destination="ZRy-fI-Yxg" id="lT2-6R-U93"/>
                             </connections>
@@ -93,7 +93,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="star" catalog="system" width="128" height="116"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

@@ -10,8 +10,6 @@ import CoreData
 
 class CharactersViewController: UIViewController, StoryboardInstantiable {
 
-    private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-
     @IBOutlet weak var charactersTableView: UITableView!
     @IBOutlet weak var emptyView: UIView!
     @IBOutlet weak var loadingView: UIView!
@@ -25,6 +23,7 @@ class CharactersViewController: UIViewController, StoryboardInstantiable {
     private var charactersLocal: [CharacterLocal] = []
 
     var isRemote: Bool = true
+    private var fetchedResultsController: NSFetchedResultsController<CharacterLocal>!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,6 +41,7 @@ extension CharactersViewController {
     private func setup() {
         self.setupTableView()
         self.setupSearchBar()
+        self.setupFetchedResultsController()
     }
 
     private func setupSearchBar() {
@@ -77,24 +77,6 @@ extension CharactersViewController {
 
             }
         })
-    }
-
-    private func getLocalCharacters(nameStartsWith: String?) {
-        self.loading(isLoading: true)
-        do {
-            if let text = nameStartsWith {
-                let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "CharacterLocal")
-                fetchRequest.predicate = NSPredicate(format: "name CONTAINS[c] %@", text)
-                self.charactersLocal = try context.fetch(fetchRequest) as [CharacterLocal]
-            } else {
-                self.charactersLocal = try context.fetch(CharacterLocal.fetchRequest())
-            }
-            self.loading(isLoading: false)
-            self.charactersTableView.reloadData()
-            self.setupEmpytView()
-        } catch  {
-            print("error when trying to retrieve objects from the database")
-        }
     }
 
     private func loading(isLoading: Bool) {
@@ -196,5 +178,63 @@ extension CharactersViewController: UITableViewDataSource {
 extension CharactersViewController : CharacterTableViewCellProtocol {
     func didError(message: String) {
         self.alertError(message: message)
+    }
+}
+
+extension CharactersViewController: NSFetchedResultsControllerDelegate {
+
+    private func getLocalCharacters(nameStartsWith: String?) {
+        self.loading(isLoading: true)
+        if let text = nameStartsWith {
+            let predicate = NSPredicate(format: "name CONTAINS[c] %@", text)
+            fetchedResultsController.fetchRequest.predicate = predicate
+            if let myCharacterLocal = fetchedResultsController.fetchedObjects {
+                self.charactersLocal = myCharacterLocal
+                self.charactersTableView.reloadData()
+                self.setupEmpytView()
+                self.loading(isLoading: false)
+            }
+        } else {
+            if let myCharacterLocal = fetchedResultsController.fetchedObjects {
+                self.charactersLocal = myCharacterLocal
+                self.charactersTableView.reloadData()
+                self.setupEmpytView()
+                self.loading(isLoading: false)
+            }
+        }
+    }
+
+    private func setupFetchedResultsController() {
+        self.loading(isLoading: true)
+        let fetchRequest:NSFetchRequest<CharacterLocal> = CharacterLocal.fetchRequest()
+        let sortDescriptor = NSSortDescriptor(key: "name", ascending: false)
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self.viewModel.context, sectionNameKeyPath: nil, cacheName: "characterLocal")
+
+        fetchedResultsController.delegate = self
+        do {
+            try fetchedResultsController.performFetch()
+            self.loading(isLoading: false)
+        } catch {
+            fatalError("The fetch could not be performed: \(error.localizedDescription)")
+        }
+    }
+
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        guard let myCharacterLocal = anObject as? CharacterLocal else {
+            return
+        }
+        switch type {
+        case .insert:
+            self.isRemote ? nil : self.charactersLocal.append(myCharacterLocal)
+            self.charactersTableView.reloadData()
+            self.setupEmpytView()
+            break
+        case .delete:
+            self.isRemote ? nil : self.charactersLocal.remove(at: indexPath!.row)
+            self.charactersTableView.reloadData()
+            self.setupEmpytView()
+        default: break
+        }
     }
 }
